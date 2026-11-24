@@ -16,10 +16,13 @@ OUTPUT_PATH = Path(os.environ.get("OUTPUT_PATH", "/output/entry.txt"))
 def main() -> None:
     text = FORECAST
     assert 1 <= len(text) <= 140, f"forecast is {len(text)} chars, outside the 1-140 gate"
+    assert "\n" not in text, "forecast must be a single line"
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(text, encoding="utf-8")
     # Read the bytes back and confirm the file holds exactly the forecast.
-    assert OUTPUT_PATH.read_text(encoding="utf-8") == text
+    raw = OUTPUT_PATH.read_bytes()
+    assert raw == text.encode("utf-8"), "read-back mismatch"
+    assert len(raw) == len(text), "written byte count differs from the forecast"
     print(f"wrote {len(text)} chars to {OUTPUT_PATH}")
 
 
